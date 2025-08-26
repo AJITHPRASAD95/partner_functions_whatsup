@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Host - Innerspace Coworking</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            color: #667eea;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .login-btn {
+            color: #667eea;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .main-content {
+            margin-top: 80px;
+        }
+
+        .hero-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .steps-preview {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .step-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .step-content {
+            padding: 0 2rem 2rem;
+        }
+
+        .question-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .space-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .space-type-card {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .space-type-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .space-type-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .space-type-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .workspace-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .workspace-card {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .workspace-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .workspace-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .workspace-card h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .workspace-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .privacy-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .map-container {
+            height: 300px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .modal-footer {
+            padding: 2rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .space-types {
+                grid-template-columns: 1fr;
+            }
+
+            .workspace-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-building"></i> Innerspace
+            </a>
+            <div class="nav-right">
+                <a href="partner-login.html" class="login-btn">Host Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <section class="hero-section">
+            <div class="container">
+                <h1>Become an Innerspace host</h1>
+                <p>Share your space and earn money by hosting professionals, entrepreneurs, and businesses looking for flexible workspace solutions.</p>
+                <button class="start-btn" onclick="startOnboarding()">
+                    <i class="fas fa-home"></i> Start hosting
+                </button>
+            </div>
+        </section>
+
+        <section class="steps-preview">
+            <div class="container">
+                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 2rem;">3 simple steps to start</h2>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Tell us about your space</h3>
+                        <p>Share some basic info about your workspace, like what type of space you have and its location.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Make it stand out</h3>
+                        <p>Add a title, description, photos, and set your pricing to help your listing shine.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Finish and publish</h3>
+                        <p>Complete your profile, verify your identity, and start welcoming guests to your space.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="onboardingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span style="float: right; font-size: 2rem; cursor: pointer;" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle">Tell us about your space</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 10%;"></div>
+                </div>
+                <p id="stepIndicator">Step 1 of 10</p>
+            </div>
+
+            <div class="step-content">
+                <div class="question-section active" id="step1">
+                    <h3>What kind of space do you have?</h3>
+                    <div class="space-types">
+                        <div class="space-type-card" data-value="coworking_space">
+                            <i class="fas fa-building"></i>
+                            <h4>Coworking Space</h4>
+                        </div>
+                        <div class="space-type-card" data-value="home">
+                            <i class="fas fa-home"></i>
+                            <h4>Home</h4>
+                        </div>
+                        <div class="space-type-card" data-value="hotel">
+                            <i class="fas fa-hotel"></i>
+                            <h4>Hotel</h4>
+                        </div>
+                        <div class="space-type-card" data-value="commercial_space">
+                            <i class="fas fa-store"></i>
+                            <h4>Commercial Space</h4>
+                        </div>
+                        <div class="space-type-card" data-value="other">
+                            <i class="fas fa-ellipsis-h"></i>
+                            <h4>Others</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section" id="step2">
+                    <h3>What workspace options will you offer?</h3>
+                    <p>You can select multiple options</p>
+                    <div class="workspace-types">
+                        <div class="workspace-card" data-value="meeting_room">
+                            <h4>Meeting Room</h4>
+                            <p>Private rooms for meetings and conferences</p>
+                        </div>
+                        <div class="workspace-card" data-value="conference_room">
+                            <h4>Conference Room</h4>
+                            <p>Large spaces for presentations and events</p>
+                        </div>
+                        <div class="workspace-card" data-value="desk_space">
+                            <h4>Desk Space</h4>
+                            <p>Individual workstations</p>
+                        </div>
+                        <div class="workspace-card" data-value="cabin">
+                            <h4>Private Cabin</h4>
+                            <p>Enclosed private offices</p>
+                        </div>
+                        <div class="workspace-card" data-value="hot_desk">
+                            <h4>Hot Desk</h4>
+                            <p>Flexible shared workstations</p>
+                        </div>
+                        <div class="workspace-card" data-value="event_space">
+                            <h4>Event Space</h4>
+                            <p>Venues for workshops and events</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section" id="step3">
+                    <h3>What type of space will clients get?</h3>
+                    <div class="privacy-options">
+                        <div class="workspace-card" data-value="entire">
+                            <h4>Entire place</h4>
+                            <p>Clients have the whole space to themselves</p>
+                        </div>
+                        <div class="workspace-card" data-value="shared">
+                            <h4>Shared space</h4>
+                            <p>Clients share the space with others</p>
+                        </div>
+                        <div class="workspace-card" data-value="private">
+                            <h4>Private space</h4>
+                            <p>Clients have their own private area within a larger space</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section" id="step4">
+                    <h3>Where is your workspace located?</h3>
+                    <div class="map-container">
+                        <i class="fas fa-map-marker-alt fa-3x"></i>
+                        <p style="margin-left: 1rem;">Map integration will be added here</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Search for your address</label>
+                        <input type="text" class="form-input" id="addressSearch" placeholder="Enter your full address">
+                    </div>
+                </div>
+
+                <div class="question-section" id="step5">
+                    <h3>Confirm your address</h3>
+                    <div class="form-group">
+                        <label>Full Address</label>
+                        <textarea class="form-input" id="fullAddress" rows="3" placeholder="Enter complete address"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-input" id="city" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-input" id="state" placeholder="State">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PIN Code</label>
+                            <input type="text" class="form-input" id="pincode" placeholder="PIN Code">
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" class="form-input" id="country" value="India" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section" id="step6">
+                    <h3>Tell us about yourself</h3>
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" class="form-input" id="businessName" placeholder="Your business or space name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Your Full Name</label>
+                            <input type="text" class="form-input" id="hostName" placeholder="As per legal ID">
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" class="form-input" id="dob">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" id="email" placeholder="your@email.com">
+                    </div>
+                </div>
+
+                <div class="question-section" id="step7">
+                    <h3>Verify your email</h3>
+                    <p>We've sent a verification code to your email address</p>
+                    <div class="form-group">
+                        <label>Enter verification code</label>
+                        <input type="text" class="form-input" id="otpCode" placeholder="Enter 6-digit code">
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="resendOTP()">Resend Code</button>
+                </div>
+
+                <div class="question-section" id="step8">
+                    <h3>Make your space stand out</h3>
+                    <div class="form-group">
+                        <label>Create a catchy title</label>
+                        <input type="text" class="form-input" id="spaceTitle" placeholder="e.g., Modern coworking space in the heart of the city">
+                    </div>
+                    <div class="form-group">
+                        <label>Describe your space</label>
+                        <textarea class="form-input" id="spaceDescription" rows="5" placeholder="Tell potential clients what makes your space special..."></textarea>
+                    </div>
+                </div>
+
+                <div class="question-section" id="step9">
+                    <h3>Add photos of your space</h3>
+                    <p>Upload high-quality photos that showcase your workspace</p>
+                    <div class="form-group">
+                        <label>Upload Photos (up to 10)</label>
+                        <input type="file" class="form-input" id="spacePhotos" multiple accept="image/*">
+                    </div>
+                    <div id="photoPreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;"></div>
+                </div>
+
+                <div class="question-section" id="step10">
+                    <h3>Set your pricing and finish up</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Hourly Rate (₹)</label>
+                            <input type="number" class="form-input" id="hourlyRate" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Rate (₹)</label>
+                            <input type="number" class="form-input" id="dailyRate" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Weekly Rate (₹)</label>
+                            <input type="number" class="form-input" id="weeklyRate" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Rate (₹)</label>
+                            <input type="number" class="form-input" id="monthlyRate" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password for your account</label>
+                        <input type="password" class="form-input" id="password" placeholder="Create a strong password">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="termsAccepted">
+                            I agree to the Terms and Conditions
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="backBtn" onclick="previousStep()" style="display: none;">Back</button>
+                <button type="button" class="btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 10;
+        let onboardingData = {};
+
+        function startOnboarding() {
+            document.getElementById('onboardingModal').style.display = 'block';
+            updateProgress();
+        }
+
+        function closeModal() {
+            document.getElementById('onboardingModal').style.display = 'none';
+            currentStep = 1;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('stepIndicator').textContent = `Step ${currentStep} of ${totalSteps}`;
+            
+            // Update modal title based on step
+            const titles = {
+                1: 'Tell us about your space',
+                2: 'What will you offer?',
+                3: 'Privacy settings',
+                4: 'Location',
+                5: 'Address confirmation',
+                6: 'Personal information',
+                7: 'Email verification',
+                8: 'Make it stand out',
+                9: 'Add photos',
+                10: 'Finish and publish'
+            };
+            document.getElementById('modalTitle').textContent = titles[currentStep] || 'Setup';
+            
+            // Show/hide navigation buttons
+            document.getElementById('backBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Publish Listing' : 'Next';
+        }
+
+        function nextStep() {
+            if (validateCurrentStep()) {
+                saveCurrentStepData();
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                    updateProgress();
+                } else {
+                    submitOnboarding();
+                }
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+                updateProgress();
+            }
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.question-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    return document.querySelector('.space-type-card.selected') !== null;
+                case 2:
+                    return document.querySelectorAll('.workspace-card.selected').length > 0;
+                case 3:
+                    return document.querySelector('.workspace-card.selected[data-value="entire"], .workspace-card.selected[data-value="shared"], .workspace-card.selected[data-value="private"]') !== null;
+                case 4:
+                    return document.getElementById('addressSearch').value.trim() !== '';
+                case 5:
+                    const address = document.getElementById('fullAddress').value.trim();
+                    const city = document.getElementById('city').value.trim();
+                    const state = document.getElementById('state').value.trim();
+                    const pincode = document.getElementById('pincode').value.trim();
+                    return address && city && state && pincode;
+                case 6:
+                    const businessName = document.getElementById('businessName').value.trim();
+                    const hostName = document.getElementById('hostName').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const dob = document.getElementById('dob').value;
+                    return businessName && hostName && email && dob;
+                case 7:
+                    return document.getElementById('otpCode').value.trim().length === 6;
+                case 8:
+                    const title = document.getElementById('spaceTitle').value.trim();
+                    const description = document.getElementById('spaceDescription').value.trim();
+                    return title && description;
+                case 9:
+                    return true; // Photos are optional
+                case 10:
+                    const password = document.getElementById('password').value.trim();
+                    const terms = document.getElementById('termsAccepted').checked;
+                    return password.length >= 6 && terms;
+                default:
+                    return true;
+            }
+        }
+
+        function saveCurrentStepData() {
+            switch (currentStep) {
+                case 1:
+                    onboardingData.spaceType = document.querySelector('.space-type-card.selected').dataset.value;
+                    break;
+                case 2:
+                    onboardingData.workspaceTypes = Array.from(document.querySelectorAll('.workspace-card.selected'))
+                        .map(card => card.dataset.value);
+                    break;
+                case 3:
+                    const privacySelected = document.querySelector('.workspace-card.selected[data-value="entire"], .workspace-card.selected[data-value="shared"], .workspace-card.selected[data-value="private"]');
+                    onboardingData.privacyType = privacySelected ? privacySelected.dataset.value : '';
+                    break;
+                case 5:
+                    onboardingData.address = {
+                        full: document.getElementById('fullAddress').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value,
+                        country: 'India'
+                    };
+                    break;
+                case 6:
+                    onboardingData.businessName = document.getElementById('businessName').value;
+                    onboardingData.hostName = document.getElementById('hostName').value;
+                    onboardingData.email = document.getElementById('email').value;
+                    onboardingData.dob = document.getElementById('dob').value;
+                    break;
+                case 8:
+                    onboardingData.title = document.getElementById('spaceTitle').value;
+                    onboardingData.description = document.getElementById('spaceDescription').value;
+                    break;
+                case 10:
+                    onboardingData.pricing = {
+                        hourly: document.getElementById('hourlyRate').value || 0,
+                        daily: document.getElementById('dailyRate').value || 0,
+                        weekly: document.getElementById('weeklyRate').value || 0,
+                        monthly: document.getElementById('monthlyRate').value || 0
+                    };
+                    onboardingData.password = document.getElementById('password').value;
+                    break;
+            }
+        }
+
+        async function submitOnboarding() {
+            try {
+                const formData = new FormData();
+                
+                // Add all the collected data with corrected field names
+                formData.append('businessName', onboardingData.businessName);
+                formData.append('spaceType', onboardingData.spaceType); // Corrected: businessType -> spaceType
+                formData.append('hostName', onboardingData.hostName); // Corrected: name -> hostName
+                formData.append('email', onboardingData.email);
+                formData.append('password', onboardingData.password);
+                formData.append('dob', onboardingData.dob);
+                
+                // Asset data
+                formData.append('title', onboardingData.title);
+                formData.append('description', onboardingData.description);
+                formData.append('type', onboardingData.workspaceTypes[0] || 'desk_space');
+                formData.append('capacity', '1'); // Default capacity
+                formData.append('privacyType', onboardingData.privacyType);
+                
+                // Location
+                formData.append('address', onboardingData.address.full);
+                formData.append('city', onboardingData.address.city);
+                formData.append('state', onboardingData.address.state);
+                formData.append('pincode', onboardingData.address.pincode);
+                
+                // Pricing
+                formData.append('hourlyRate', onboardingData.pricing.hourly);   // Corrected: hourlyPrice -> hourlyRate
+                formData.append('dailyRate', onboardingData.pricing.daily);     // Corrected: dailyPrice -> dailyRate
+                formData.append('weeklyRate', onboardingData.pricing.weekly);   // Corrected: weeklyPrice -> weeklyRate
+                formData.append('monthlyRate', onboardingData.pricing.monthly); // Corrected: monthlyPrice -> monthlyRate
+                
+                // Add photos if any
+                const photoInput = document.getElementById('spacePhotos');
+                if (photoInput.files.length > 0) {
+                    for (let i = 0; i < photoInput.files.length; i++) {
+                        formData.append('images', photoInput.files[i]);
+                    }
+                }
+
+                const response = await fetch('/api/auth/register-with-space', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Show success message
+                    showSuccessModal();
+                } else {
+                    alert('Registration failed: ' + (result.message || 'Please try again'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Network error. Please check your connection and try again.');
+            }
+        }
+
+        function showSuccessModal() {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div style="text-align: center; padding: 4rem 2rem;">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; color: #4CAF50; margin-bottom: 2rem;"></i>
+                    <h2 style="color: #333; margin-bottom: 1rem;">Welcome to Innerspace!</h2>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 2rem;">
+                        Your registration has been submitted successfully. Our team will review your listing and get back to you within 24-48 hours.
+                    </p>
+                    <button class="btn-primary" onclick="window.location.href='partner-login.html'">
+                        Continue to Login
+                    </button>
+                </div>
+            `;
+        }
+
+        function resendOTP() {
+            // Simulate OTP resend
+            alert('Verification code sent again to your email');
+        }
+
+        // Handle photo preview
+        document.addEventListener('DOMContentLoaded', function() {
+            const photoInput = document.getElementById('spacePhotos');
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    const preview = document.getElementById('photoPreview');
+                    preview.innerHTML = '';
+                    
+                    for (let i = 0; i < this.files.length && i < 10; i++) {
+                        const file = this.files[i];
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '100%';
+                            img.style.height = '120px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '8px';
+                            img.style.border = '2px solid #eee';
+                            preview.appendChild(img);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        // Handle card selections
+        document.addEventListener('click', function(e) {
+            // Space type cards (single selection)
+            if (e.target.closest('.space-type-card')) {
+                document.querySelectorAll('.space-type-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                e.target.closest('.space-type-card').classList.add('selected');
+            }
+            
+            // Workspace cards in step 2 (multiple selection)
+            if (e.target.closest('#step2 .workspace-card')) {
+                e.target.closest('.workspace-card').classList.toggle('selected');
+            }
+            
+            // Privacy cards in step 3 (single selection)
+            if (e.target.closest('#step3 .workspace-card')) {
+                document.querySelectorAll('#step3 .workspace-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                e.target.closest('.workspace-card').classList.add('selected');
+            }
+        });
+
+        // Handle email input for automatic OTP simulation
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'email' && currentStep === 6) {
+                // Simulate sending OTP when email is entered
+                setTimeout(() => {
+                    if (currentStep === 7) {
+                        alert('Verification code sent to ' + e.target.value);
+                    }
+                }, 1000);
+            }
+        });
+
+        // Auto-fill some demo data for testing
+        function fillDemoData() {
+            document.getElementById('businessName').value = 'Demo Coworking Space';
+            document.getElementById('hostName').value = 'John Doe';
+            document.getElementById('email').value = 'john@example.com';
+            document.getElementById('dob').value = '1990-01-01';
+            document.getElementById('fullAddress').value = '123 Business Street, Tech Park';
+            document.getElementById('city').value = 'Bangalore';
+            document.getElementById('state').value = 'Karnataka';
+            document.getElementById('pincode').value = '560001';
+            document.getElementById('spaceTitle').value = 'Modern coworking space in tech hub';
+            document.getElementById('spaceDescription').value = 'A vibrant coworking space with all modern amenities, high-speed internet, and a collaborative environment perfect for startups and freelancers.';
+            document.getElementById('hourlyRate').value = '150';
+            document.getElementById('dailyRate').value = '1000';
+            document.getElementById('weeklyRate').value = '6000';
+            document.getElementById('monthlyRate').value = '20000';
+            document.getElementById('password').value = 'demo123456';
+            document.getElementById('otpCode').value = '123456';
+            document.getElementById('termsAccepted').checked = true;
+        }
+
+        // Add demo data button for testing (remove in production)
+        document.addEventListener('DOMContentLoaded', function() {
+            const demoBtn = document.createElement('button');
+            demoBtn.textContent = 'Fill Demo Data';
+            demoBtn.style.position = 'fixed';
+            demoBtn.style.top = '10px';
+            demoBtn.style.right = '10px';
+            demoBtn.style.zIndex = '9999';
+            demoBtn.style.background = '#ff6b6b';
+            demoBtn.style.color = 'white';
+            demoBtn.style.border = 'none';
+            demoBtn.style.padding = '0.5rem';
+            demoBtn.style.borderRadius = '5px';
+            demoBtn.style.fontSize = '0.8rem';
+            demoBtn.onclick = fillDemoData;
+            document.body.appendChild(demoBtn);
+        });
+    </script>
+</body>
+</html>

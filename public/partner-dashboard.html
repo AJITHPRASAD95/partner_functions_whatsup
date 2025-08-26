@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Dashboard - Innerspace Coworking</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .nav-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .approval-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-building"></i> Innerspace Partner
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-section="assets"><i class="fas fa-cube"></i> My Assets</a></li>
+            <li><a href="#" class="nav-link" data-section="bookings"><i class="fas fa-calendar"></i> Bookings</a></li>
+            <li><a href="#" class="nav-link" data-section="profile"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="#" class="nav-link" data-section="analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Welcome back, <span id="userName">Partner</span>!</h1>
+                <p>Manage your coworking spaces and bookings</p>
+            </div>
+            <div class="user-info">
+                <span class="approval-status" id="approvalStatus">Pending</span>
+                <img src="https://ui-avatars.com/api/?name=Partner&background=764ba2&color=fff" alt="User Avatar" style="border-radius: 50%; width: 40px;">
+            </div>
+        </div>
+        
+        <section class="content-section active" id="dashboard">
+            <h2>Dashboard Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <p>Total Assets</p>
+                    <h3 id="totalAssets">0</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Total Bookings</p>
+                    <h3 id="totalBookings">0</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Pending Approval</p>
+                    <h3 id="pendingAssets">0</h3>
+                </div>
+                <div class="stat-card">
+                    <p>Upcoming Bookings</p>
+                    <h3 id="upcomingBookings">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="assets">
+            <div class="section-header">
+                <h2>My Assets</h2>
+                <button class="btn" id="addAssetBtn"><i class="fas fa-plus"></i> Add New Asset</button>
+            </div>
+            <div id="assetsList">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Capacity</th>
+                            <th>Price (Hourly)</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center;">No assets found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="assetModal" class="modal">
+            <div class="modal-content">
+                <div class="section-header">
+                    <h2 id="modalTitle">Add New Asset</h2>
+                    <span class="close-btn" onclick="closeModal()" style="font-size: 1.5rem; cursor: pointer;">&times;</span>
+                </div>
+                <form id="assetForm">
+                    <div class="form-group">
+                        <label for="title">Asset Title *</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Type *</label>
+                            <select id="type" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="meeting_room">Meeting Room</option>
+                                <option value="conference_room">Conference Room</option>
+                                <option value="cabin">Private Cabin</option>
+                                <option value="dedicated_desk">Dedicated Desk</option>
+                                <option value="hot_desk">Hot Desk</option>
+                                <option value="office_space">Office Space</option>
+                                <option value="event_space">Event Space</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="capacity">Capacity *</label>
+                            <input type="number" id="capacity" name="capacity" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <h3>Pricing (per unit, leave blank if not applicable)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hourlyPrice">Hourly (INR)</label>
+                            <input type="number" id="hourlyPrice" name="hourlyPrice" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="dailyPrice">Daily (INR)</label>
+                            <input type="number" id="dailyPrice" name="dailyPrice" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weeklyPrice">Weekly (INR)</label>
+                            <input type="number" id="weeklyPrice" name="weeklyPrice" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="monthlyPrice">Monthly (INR)</label>
+                            <input type="number" id="monthlyPrice" name="monthlyPrice" min="0">
+                        </div>
+                    </div>
+
+                    <h3>Location</h3>
+                    <div class="form-group">
+                        <label for="address">Address *</label>
+                        <textarea id="address" name="address" rows="2" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State *</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pincode *</label>
+                        <input type="text" id="pincode" name="pincode" required>
+                    </div>
+                    
+                    <h3>Images</h3>
+                    <div class="form-group">
+                        <label for="images">Upload Images (up to 10)</label>
+                        <input type="file" id="images" name="images" multiple accept="image/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amenities">Amenities (comma-separated)</label>
+                        <input type="text" id="amenities" name="amenities">
+                    </div>
+
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> Save Asset</button>
+                    <div id="assetFormMessage" style="color: red; margin-top: 1rem; display: none;"></div>
+                </form>
+            </div>
+        </div>
+
+        <section class="content-section" id="bookings">
+            <h2>My Bookings</h2>
+            <p>This section will show a list of all confirmed and upcoming bookings for your assets.</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Asset</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">No bookings found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section" id="profile">
+            <h2>My Profile</h2>
+            <p>This section will allow you to update your profile information.</p>
+        </section>
+
+        <section class="content-section" id="analytics">
+            <h2>Analytics</h2>
+            <p>This section will display performance metrics for your assets, such as views, clicks, and revenue.</p>
+        </section>
+
+    </div>
+
+    <script>
+        const API_BASE_URL = ''; // Adjust if needed
+        let currentUserId = null;
+        let currentUserRole = null;
+        let currentAssetId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!token || !user) {
+                window.location.href = '/';
+                return;
+            }
+            currentUserId = user.id;
+            currentUserRole = user.role;
+            if (currentUserRole !== 'partner') {
+                window.location.href = '/'; // Redirect non-partners
+                return;
+            }
+
+            // Populate user info
+            document.getElementById('userName').textContent = user.name;
+            const approvalStatus = document.getElementById('approvalStatus');
+            if (user.isApproved) {
+                approvalStatus.textContent = 'Approved';
+                approvalStatus.classList.add('approved');
+            } else {
+                approvalStatus.textContent = 'Pending';
+                approvalStatus.classList.add('pending');
+            }
+
+            loadContent();
+            setupEventListeners();
+        });
+
+        async function loadContent() {
+            await fetchAssets();
+            // In a real app, you'd fetch bookings, analytics, etc. here
+        }
+        
+        function setupEventListeners() {
+            // Handle navigation clicks
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector('.nav-link.active').classList.remove('active');
+                    e.target.closest('a').classList.add('active');
+
+                    document.querySelector('.content-section.active').classList.remove('active');
+                    document.getElementById(e.target.closest('a').dataset.section).classList.add('active');
+                });
+            });
+
+            // Handle asset modal
+            document.getElementById('addAssetBtn').addEventListener('click', () => {
+                currentAssetId = null;
+                document.getElementById('modalTitle').textContent = 'Add New Asset';
+                document.getElementById('assetForm').reset();
+                document.getElementById('assetModal').style.display = 'block';
+            });
+            
+            document.getElementById('assetForm').addEventListener('submit', handleAssetFormSubmit);
+        }
+
+        async function fetchAssets() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/assets/my-assets`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const assets = await response.json();
+                const assetsTableBody = document.getElementById('assetsTableBody');
+                assetsTableBody.innerHTML = '';
+                
+                if (assets.length === 0) {
+                    assetsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No assets found.</td></tr>';
+                    document.getElementById('totalAssets').textContent = 0;
+                    document.getElementById('pendingAssets').textContent = 0;
+                    return;
+                }
+
+                document.getElementById('totalAssets').textContent = assets.length;
+                document.getElementById('pendingAssets').textContent = assets.filter(asset => asset.status === 'pending').length;
+
+                assets.forEach(asset => {
+                    const row = document.createElement('tr');
+                    let statusClass = '';
+                    switch (asset.status) {
+                        case 'approved': statusClass = 'status-approved'; break;
+                        case 'rejected': statusClass = 'status-rejected'; break;
+                        default: statusClass = 'status-pending'; break;
+                    }
+                    const hourlyPrice = asset.pricing.hourly ? `₹${asset.pricing.hourly}` : 'N/A';
+                    
+                    row.innerHTML = `
+                        <td>${asset.title}</td>
+                        <td>${asset.type}</td>
+                        <td>${asset.capacity}</td>
+                        <td>${hourlyPrice}</td>
+                        <td><span class="status-badge ${statusClass}">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span></td>
+                        <td>
+                            <button class="btn btn-sm" onclick="editAsset('${asset._id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAsset('${asset._id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    assetsTableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error fetching assets:', error);
+            }
+        }
+
+        async function handleAssetFormSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const messageDiv = document.getElementById('assetFormMessage');
+            messageDiv.style.display = 'none';
+            messageDiv.style.color = 'red';
+
+            // Convert multi-select/text inputs to arrays
+            const amenities = formData.get('amenities')?.split(',').map(s => s.trim()).filter(s => s) || [];
+            const availableDays = formData.get('availableDays')?.split(',').map(s => s.trim()).filter(s => s) || [];
+            const rules = formData.get('rules')?.split(',').map(s => s.trim()).filter(s => s) || [];
+            formData.set('amenities', JSON.stringify(amenities));
+            formData.set('availableDays', JSON.stringify(availableDays));
+            formData.set('rules', JSON.stringify(rules));
+
+            const method = currentAssetId ? 'PUT' : 'POST';
+            const url = currentAssetId ? `${API_BASE_URL}/api/assets/${currentAssetId}` : `${API_BASE_URL}/api/assets`;
+            
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: formData // Use FormData for file uploads
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.textContent = currentAssetId ? 'Asset updated successfully!' : 'Asset added successfully! Awaiting admin approval.';
+                    messageDiv.style.color = 'green';
+                    messageDiv.style.display = 'block';
+                    form.reset();
+                    closeModal();
+                    fetchAssets();
+                } else {
+                    messageDiv.textContent = result.message || result.errors[0].msg || 'An error occurred.';
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Network error. Please try again.';
+                messageDiv.style.display = 'block';
+            }
+        }
+
+        async function editAsset(id) {
+            currentAssetId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Asset';
+            document.getElementById('assetForm').reset();
+            const messageDiv = document.getElementById('assetFormMessage');
+            messageDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/assets/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                const asset = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('title').value = asset.title;
+                    document.getElementById('description').value = asset.description;
+                    document.getElementById('type').value = asset.type;
+                    document.getElementById('capacity').value = asset.capacity;
+                    document.getElementById('hourlyPrice').value = asset.pricing.hourly || '';
+                    document.getElementById('dailyPrice').value = asset.pricing.daily || '';
+                    document.getElementById('weeklyPrice').value = asset.pricing.weekly || '';
+                    document.getElementById('monthlyPrice').value = asset.pricing.monthly || '';
+                    document.getElementById('address').value = asset.location.address;
+                    document.getElementById('city').value = asset.location.city;
+                    document.getElementById('state').value = asset.location.state;
+                    document.getElementById('pincode').value = asset.location.pincode;
+                    document.getElementById('amenities').value = asset.amenities?.join(', ') || '';
+                    // Note: availability and policy fields are not handled for simplicity
+                    
+                    document.getElementById('assetModal').style.display = 'block';
+                } else {
+                    alert('Could not fetch asset details.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error fetching asset details.');
+            }
+        }
+
+        async function deleteAsset(id) {
+            if (!confirm('Are you sure you want to delete this asset?')) {
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/assets/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Asset deleted successfully!');
+                    fetchAssets();
+                } else {
+                    const result = await response.json();
+                    alert(result.message || 'Failed to delete asset.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Network error. Failed to delete asset.');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('assetModal').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Innerspace Coworking</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            z-index: 1000;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .nav-menu {
+            list-style: none;
+        }
+        .nav-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .nav-link i {
+            margin-right: 10px;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            transition: margin-left 0.3s;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+        .user-info i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            color: #667eea;
+        }
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        .dashboard-section {
+            display: none;
+        }
+        .dashboard-section.active {
+            display: block;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        .card h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        table th, table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-badge.pending { background-color: #ffc107; }
+        .status-badge.approved { background-color: #28a745; }
+        .status-badge.rejected { background-color: #dc3545; }
+        .actions-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.2rem;
+        }
+        .btn-approve { background-color: #28a745; color: white; }
+        .btn-reject { background-color: #dc3545; color: white; }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-info {
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-user-shield"></i> Innerspace Admin
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-section="partners"><i class="fas fa-users"></i> Manage Partners</a></li>
+            <li><a href="#" class="nav-link" data-section="assets"><i class="fas fa-cube"></i> Manage Assets</a></li>
+            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Welcome, <span id="adminName">Admin</span>!</h1>
+                <p>Manage the Innerspace platform</p>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i> <span id="adminEmail">admin@innerspace.com</span>
+            </div>
+        </div>
+
+        <div id="dashboard" class="dashboard-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-user-check"></i></div>
+                    <div>
+                        <div id="approvedPartners" class="value">0</div>
+                        <div class="label">Approved Partners</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-user-clock"></i></div>
+                    <div>
+                        <div id="pendingPartners" class="value">0</div>
+                        <div class="label">Pending Partners</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-check-square"></i></div>
+                    <div>
+                        <div id="approvedAssets" class="value">0</div>
+                        <div class="label">Approved Assets</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div id="pendingAssets" class="value">0</div>
+                        <div class="label">Pending Assets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="partners" class="dashboard-section">
+            <div class="card">
+                <h2>Manage Partners</h2>
+                <div class="table-container">
+                    <table id="partnersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partnersTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="assets" class="dashboard-section">
+            <div class="card">
+                <h2>Manage Assets</h2>
+                <div class="table-container">
+                    <table id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Partner</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        const adminToken = localStorage.getItem('adminToken');
+        const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+
+        if (!adminToken) {
+            window.location.href = '/'; // Redirect to home if no token
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (adminUser) {
+                document.getElementById('adminName').textContent = adminUser.name;
+                document.getElementById('adminEmail').textContent = adminUser.email;
+            }
+            loadAdminContent();
+        });
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                document.querySelectorAll('.dashboard-section').forEach(section => section.classList.remove('active'));
+                const sectionId = e.target.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+
+                // Reload content when switching sections
+                if (sectionId === 'partners') fetchPartners();
+                if (sectionId === 'assets') fetchAssets();
+                if (sectionId === 'dashboard') fetchDashboardStats();
+            });
+        });
+
+        async function loadAdminContent() {
+            try {
+                await Promise.all([
+                    fetchDashboardStats(),
+                    fetchPartners(),
+                    fetchAssets()
+                ]);
+            } catch (error) {
+                console.error('Error loading content:', error);
+                // If any fetch fails, assume a token issue and redirect
+                logout();
+            }
+        }
+
+        async function fetchDashboardStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch stats');
+                }
+
+                const stats = await response.json();
+                document.getElementById('approvedPartners').textContent = stats.partners.approved;
+                document.getElementById('pendingPartners').textContent = stats.partners.pending;
+                document.getElementById('approvedAssets').textContent = stats.assets.approved;
+                document.getElementById('pendingAssets').textContent = stats.assets.pending;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                logout();
+            }
+        }
+
+        async function fetchPartners() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/partners`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch partners');
+                }
+                
+                const partners = await response.json();
+                const partnersTableBody = document.getElementById('partnersTableBody');
+                partnersTableBody.innerHTML = ''; // Clear existing data
+
+                partners.forEach(partner => {
+                    const row = document.createElement('tr');
+                    const statusText = partner.isApproved ? 'Approved' : 'Pending';
+                    const statusClass = partner.isApproved ? 'approved' : 'pending';
+                    const joinDate = new Date(partner.createdAt).toLocaleDateString();
+
+                    row.innerHTML = `
+                        <td>${partner.name}</td>
+                        <td>${partner.email}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${joinDate}</td>
+                        <td>
+                            ${!partner.isApproved ? `<button class="actions-btn btn-approve" onclick="updatePartnerStatus('${partner._id}', true)"><i class="fas fa-check"></i></button>` : ''}
+                            ${partner.isApproved ? `<button class="actions-btn btn-reject" onclick="updatePartnerStatus('${partner._id}', false)"><i class="fas fa-times"></i></button>` : ''}
+                        </td>
+                    `;
+                    partnersTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching partners:', error);
+                logout();
+            }
+        }
+
+        async function updatePartnerStatus(id, isApproved) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/partners/${id}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ isApproved })
+                });
+
+                if (response.ok) {
+                    alert('Partner status updated successfully!');
+                    fetchPartners(); // Reload the partners list
+                } else {
+                    const result = await response.json();
+                    alert(result.message || 'Failed to update partner status.');
+                }
+            } catch (error) {
+                console.error('Error updating partner status:', error);
+                alert('Network error. Failed to update partner status.');
+            }
+        }
+
+        async function fetchAssets() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/assets`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch assets');
+                }
+                
+                const assets = await response.json();
+                const assetsTableBody = document.getElementById('assetsTableBody');
+                assetsTableBody.innerHTML = ''; // Clear existing data
+
+                assets.forEach(asset => {
+                    const row = document.createElement('tr');
+                    const statusText = asset.status;
+                    const statusClass = asset.status;
+                    
+                    row.innerHTML = `
+                        <td>${asset.title}</td>
+                        <td>${asset.partner?.email || 'N/A'}</td>
+                        <td>${asset.type}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="actions-btn btn-approve" onclick="updateAssetStatus('${asset._id}', 'approved')"><i class="fas fa-check"></i></button>
+                            <button class="actions-btn btn-reject" onclick="updateAssetStatus('${asset._id}', 'rejected')"><i class="fas fa-times"></i></button>
+                        </td>
+                    `;
+                    assetsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching assets:', error);
+                logout();
+            }
+        }
+
+        async function updateAssetStatus(id, status) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/assets/${id}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    alert('Asset status updated successfully!');
+                    fetchAssets(); // Reload the assets list
+                } else {
+                    const result = await response.json();
+                    alert(result.message || 'Failed to update asset status.');
+                }
+            } catch (error) {
+                console.error('Error updating asset status:', error);
+                alert('Network error. Failed to update asset status.');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
