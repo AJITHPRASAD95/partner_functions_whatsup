@@ -1,3 +1,4 @@
+
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
@@ -7,7 +8,7 @@ const Booking = require('../models/Booking');
 
 // WhatsApp Configuration
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'EAALQ3yf2QwYBPjUD8M3wCu7n83OqNcx4Dohd4W2mNKEYXO5CG8hMW7SBtY0AWNOvlZBtiTJi3ZCApu6oH3wNH6IRZCmE1wBneWpdzm3VymnU8CEwJoua85zimCubd0KnTxdiiw9xw7wZBid0JNx1AvIIQKw2zeZAgGbrt9NUTL2ojcT7pAjHE0mxy7yjJT1I7BhRTsLjCG2lAbdvLZC1HjkgE89ZA6eOdi1IWGQuJW3znKNbAZDZD';
-const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID || '846227168563844';
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID || '846227168563845';
 const WHATSAPP_API_URL = `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`;
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN || 'innerspace_verify_token_123';
 
@@ -32,10 +33,10 @@ async function sendWhatsAppMessage(to, message) {
         }
       }
     );
-    console.log('Message sent successfully to', to);
+    console.log('✅ Message sent successfully to', to);
     return response.data;
   } catch (error) {
-    console.error('Error sending WhatsApp message:', error.response?.data || error.message);
+    console.error('❌ Error sending WhatsApp message:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -72,7 +73,7 @@ async function sendInteractiveButtons(to, bodyText, buttons) {
     );
     return response.data;
   } catch (error) {
-    console.error('Error sending interactive message:', error.response?.data || error.message);
+    console.error('❌ Error sending interactive message:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -104,9 +105,16 @@ async function sendListMessage(to, bodyText, buttonText, sections) {
     );
     return response.data;
   } catch (error) {
-    console.error('Error sending list message:', error.response?.data || error.message);
+    console.error('❌ Error sending list message:', error.response?.data || error.message);
     throw error;
   }
+}
+
+// Generate unique booking ID
+function generateBookingId() {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `WA${timestamp}${random}`;
 }
 
 // Webhook verification
@@ -118,10 +126,10 @@ router.get('/webhook', (req, res) => {
   console.log('Webhook verification request:', { mode, token });
   
   if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('Webhook verified successfully');
+    console.log('✅ Webhook verified successfully');
     res.status(200).send(challenge);
   } else {
-    console.log('Webhook verification failed');
+    console.log('❌ Webhook verification failed');
     res.sendStatus(403);
   }
 });
@@ -131,7 +139,7 @@ router.post('/webhook', async (req, res) => {
   try {
     const body = req.body;
     
-    console.log('Webhook received:', JSON.stringify(body, null, 2));
+    console.log('📥 Webhook received:', JSON.stringify(body, null, 2));
     
     if (body.object === 'whatsapp_business_account') {
       const entry = body.entry?.[0];
@@ -144,7 +152,7 @@ router.post('/webhook', async (req, res) => {
         const from = message.from;
         const messageType = message.type;
         
-        console.log(`Received ${messageType} message from ${from}`);
+        console.log(`📱 Received ${messageType} message from ${from}`);
         
         let userMessage = '';
         
@@ -158,7 +166,7 @@ router.post('/webhook', async (req, res) => {
           }
         }
         
-        console.log('Processing message:', userMessage);
+        console.log('💬 Processing message:', userMessage);
         await handleUserMessage(from, userMessage);
       }
       
@@ -167,7 +175,7 @@ router.post('/webhook', async (req, res) => {
       res.sendStatus(404);
     }
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('❌ Error processing webhook:', error);
     res.sendStatus(500);
   }
 });
@@ -177,14 +185,14 @@ async function handleUserMessage(from, message) {
   const state = conversationStates.get(from) || { step: 'start' };
   
   try {
-    console.log(`Handling message for ${from}, step: ${state.step}, message: ${message}`);
+    console.log(`🔄 Handling message for ${from}, step: ${state.step}, message: ${message}`);
     
     switch (state.step) {
       case 'start':
         if (message === 'book' || message === 'hi' || message === 'hello' || message === 'start') {
           await sendInteractiveButtons(
             from,
-            'Welcome to Innerspace!\n\nHow can I help you today?',
+            'Welcome to Innerspace! 🏢\n\nHow can I help you today?',
             [
               { id: 'browse_spaces', title: 'Browse Spaces' },
               { id: 'my_bookings', title: 'My Bookings' },
@@ -207,7 +215,7 @@ async function handleUserMessage(from, message) {
         } else if (message === 'help') {
           await sendWhatsAppMessage(
             from,
-            'Here\'s how to book:\n\n1. Choose space type\n2. Select location\n3. Pick your space\n4. Choose date & time\n5. Confirm booking\n\nType "book" to start!'
+            'Here\'s how to book:\n\n1️⃣ Choose space type\n2️⃣ Select location\n3️⃣ Pick your space\n4️⃣ Choose date & time\n5️⃣ Confirm booking\n\nType "book" to start!'
           );
           conversationStates.set(from, { step: 'start' });
         }
@@ -243,7 +251,7 @@ async function handleUserMessage(from, message) {
           await requestTime(from);
           conversationStates.set(from, { ...state, step: 'enter_time' });
         } else {
-          await sendWhatsAppMessage(from, 'Invalid date format. Please use DD/MM/YYYY (e.g., 25/12/2024)');
+          await sendWhatsAppMessage(from, '❌ Invalid date format. Please use DD/MM/YYYY (e.g., 25/12/2024)');
         }
         break;
         
@@ -253,7 +261,7 @@ async function handleUserMessage(from, message) {
           await requestContactInfo(from);
           conversationStates.set(from, { ...state, step: 'enter_name' });
         } else {
-          await sendWhatsAppMessage(from, 'Invalid time format. Please use HH:MM (e.g., 14:30)');
+          await sendWhatsAppMessage(from, '❌ Invalid time format. Please use HH:MM (e.g., 14:30)');
         }
         break;
         
@@ -270,7 +278,7 @@ async function handleUserMessage(from, message) {
           await confirmBooking(from, state);
           conversationStates.set(from, { ...state, step: 'confirm' });
         } else {
-          await sendWhatsAppMessage(from, 'Invalid email format. Please enter a valid email address.');
+          await sendWhatsAppMessage(from, '❌ Invalid email format. Please enter a valid email address.');
         }
         break;
         
@@ -279,7 +287,7 @@ async function handleUserMessage(from, message) {
           await processBooking(from, state);
           conversationStates.delete(from);
         } else if (message === 'cancel_booking') {
-          await sendWhatsAppMessage(from, 'Booking cancelled. Type "book" to start over.');
+          await sendWhatsAppMessage(from, '❌ Booking cancelled. Type "book" to start over.');
           conversationStates.delete(from);
         }
         break;
@@ -289,7 +297,7 @@ async function handleUserMessage(from, message) {
         conversationStates.set(from, { step: 'start' });
     }
   } catch (error) {
-    console.error('Error handling message:', error);
+    console.error('❌ Error handling message:', error);
     await sendWhatsAppMessage(from, 'Sorry, something went wrong. Please type "book" to try again.');
     conversationStates.delete(from);
   }
@@ -324,7 +332,7 @@ async function showCities(to, spaceType) {
     });
     
     if (cities.length === 0) {
-      await sendWhatsAppMessage(to, 'No spaces available for this type. Type "book" to try another type.');
+      await sendWhatsAppMessage(to, '❌ No spaces available for this type. Type "book" to try another type.');
       return;
     }
     
@@ -341,8 +349,8 @@ async function showCities(to, spaceType) {
       [{ title: 'Available Cities', rows }]
     );
   } catch (error) {
-    console.error('Error fetching cities:', error);
-    await sendWhatsAppMessage(to, 'Error loading cities. Please try again.');
+    console.error('❌ Error fetching cities:', error);
+    await sendWhatsAppMessage(to, '❌ Error loading cities. Please try again.');
   }
 }
 
@@ -358,15 +366,15 @@ async function showAvailableSpaces(to, spaceType, cityId) {
     }).limit(10).populate('partner', 'name profile.businessName');
     
     if (assets.length === 0) {
-      await sendWhatsAppMessage(to, 'No spaces available in this city. Type "book" to search again.');
+      await sendWhatsAppMessage(to, '❌ No spaces available in this city. Type "book" to search again.');
       return;
     }
     
     const rows = assets.map(asset => {
       const price = asset.pricing.hourly 
-        ? `Rs${asset.pricing.hourly}/hr`
+        ? `₹${asset.pricing.hourly}/hr`
         : asset.pricing.daily 
-        ? `Rs${asset.pricing.daily}/day`
+        ? `₹${asset.pricing.daily}/day`
         : 'Price on request';
       
       return {
@@ -383,8 +391,8 @@ async function showAvailableSpaces(to, spaceType, cityId) {
       [{ title: 'Available Spaces', rows }]
     );
   } catch (error) {
-    console.error('Error fetching spaces:', error);
-    await sendWhatsAppMessage(to, 'Error loading spaces. Please try again.');
+    console.error('❌ Error fetching spaces:', error);
+    await sendWhatsAppMessage(to, '❌ Error loading spaces. Please try again.');
   }
 }
 
@@ -393,28 +401,28 @@ async function showBookingOptions(to, assetId) {
   try {
     const asset = await Asset.findById(assetId);
     if (!asset) {
-      await sendWhatsAppMessage(to, 'Space not found. Type "book" to start over.');
+      await sendWhatsAppMessage(to, '❌ Space not found. Type "book" to start over.');
       return;
     }
     
     const buttons = [];
-    if (asset.pricing.hourly) buttons.push({ id: 'hourly', title: `Hourly Rs${asset.pricing.hourly}` });
-    if (asset.pricing.daily) buttons.push({ id: 'daily', title: `Daily Rs${asset.pricing.daily}` });
-    if (asset.pricing.monthly && buttons.length < 3) buttons.push({ id: 'monthly', title: `Monthly Rs${asset.pricing.monthly}` });
+    if (asset.pricing.hourly) buttons.push({ id: 'hourly', title: `Hourly ₹${asset.pricing.hourly}` });
+    if (asset.pricing.daily) buttons.push({ id: 'daily', title: `Daily ₹${asset.pricing.daily}` });
+    if (asset.pricing.monthly && buttons.length < 3) buttons.push({ id: 'monthly', title: `Monthly ₹${asset.pricing.monthly}` });
     
     if (buttons.length === 0) {
-      await sendWhatsAppMessage(to, 'No pricing available. Please contact us directly.');
+      await sendWhatsAppMessage(to, '❌ No pricing available. Please contact us directly.');
       return;
     }
     
     await sendInteractiveButtons(
       to,
-      `${asset.title}\n\n${asset.location.address}, ${asset.location.city}\nCapacity: ${asset.capacity}\n\nSelect booking duration:`,
+      `📍 ${asset.title}\n\n${asset.location.address}, ${asset.location.city}\n👥 Capacity: ${asset.capacity}\n\nSelect booking duration:`,
       buttons
     );
   } catch (error) {
-    console.error('Error showing booking options:', error);
-    await sendWhatsAppMessage(to, 'Error loading details. Please try again.');
+    console.error('❌ Error showing booking options:', error);
+    await sendWhatsAppMessage(to, '❌ Error loading details. Please try again.');
   }
 }
 
@@ -422,23 +430,23 @@ async function showBookingOptions(to, assetId) {
 async function requestDateTime(to) {
   await sendWhatsAppMessage(
     to,
-    'Please enter your preferred date (format: DD/MM/YYYY)\nExample: 25/12/2024'
+    '📅 Please enter your preferred date (format: DD/MM/YYYY)\nExample: 25/12/2024'
   );
 }
 
 async function requestTime(to) {
   await sendWhatsAppMessage(
     to,
-    'Please enter your preferred time (format: HH:MM)\nExample: 14:30'
+    '⏰ Please enter your preferred time (format: HH:MM)\nExample: 14:30'
   );
 }
 
 async function requestContactInfo(to) {
-  await sendWhatsAppMessage(to, 'Please enter your full name:');
+  await sendWhatsAppMessage(to, '👤 Please enter your full name:');
 }
 
 async function requestEmail(to) {
-  await sendWhatsAppMessage(to, 'Please enter your email address:');
+  await sendWhatsAppMessage(to, '📧 Please enter your email address:');
 }
 
 // Show user's bookings
@@ -450,23 +458,23 @@ async function showMyBookings(to) {
       .limit(5);
     
     if (bookings.length === 0) {
-      await sendWhatsAppMessage(to, 'You have no bookings yet. Type "book" to make your first booking!');
+      await sendWhatsAppMessage(to, '📋 You have no bookings yet. Type "book" to make your first booking!');
       return;
     }
     
-    let message = 'Your Recent Bookings:\n\n';
+    let message = '📋 Your Recent Bookings:\n\n';
     bookings.forEach((booking, index) => {
       message += `${index + 1}. ${booking.asset.title}\n`;
-      message += `   ID: ${booking.bookingId}\n`;
-      message += `   Date: ${booking.bookingDetails.date} at ${booking.bookingDetails.time}\n`;
-      message += `   Status: ${booking.status}\n`;
-      message += `   Amount: Rs${booking.pricing.totalAmount}\n\n`;
+      message += `   🆔 ID: ${booking.bookingId}\n`;
+      message += `   📅 Date: ${booking.bookingDetails.date} at ${booking.bookingDetails.time}\n`;
+      message += `   📊 Status: ${booking.status}\n`;
+      message += `   💰 Amount: ₹${booking.pricing.totalAmount}\n\n`;
     });
     
     await sendWhatsAppMessage(to, message);
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    await sendWhatsAppMessage(to, 'Error loading your bookings.');
+    console.error('❌ Error fetching bookings:', error);
+    await sendWhatsAppMessage(to, '❌ Error loading your bookings.');
   }
 }
 
@@ -474,6 +482,10 @@ async function showMyBookings(to) {
 async function confirmBooking(to, state) {
   try {
     const asset = await Asset.findById(state.assetId);
+    
+    if (!asset) {
+      throw new Error('Asset not found');
+    }
     
     const pricing = {
       hourly: asset.pricing.hourly,
@@ -485,7 +497,18 @@ async function confirmBooking(to, state) {
     const tax = Math.round(amount * 0.18); // 18% GST
     const total = amount + tax;
     
-    const summary = `Booking Summary\n\nSpace: ${asset.title}\nLocation: ${asset.location.city}\nDate: ${state.date}\nTime: ${state.time}\nDuration: ${state.duration}\n\nBase: Rs${amount}\nTax: Rs${tax}\nTotal: Rs${total}\n\nName: ${state.name}\nEmail: ${state.email}\n\nPlease confirm your booking:`;
+    const summary = `📋 Booking Summary\n\n` +
+      `📍 Space: ${asset.title}\n` +
+      `🏙️ Location: ${asset.location.city}\n` +
+      `📅 Date: ${state.date}\n` +
+      `⏰ Time: ${state.time}\n` +
+      `⏳ Duration: ${state.duration}\n\n` +
+      `💰 Base: ₹${amount}\n` +
+      `🧾 Tax (18%): ₹${tax}\n` +
+      `💳 Total: ₹${total}\n\n` +
+      `👤 Name: ${state.name}\n` +
+      `📧 Email: ${state.email}\n\n` +
+      `Please confirm your booking:`;
     
     state.amount = amount;
     state.tax = tax;
@@ -496,22 +519,31 @@ async function confirmBooking(to, state) {
       to,
       summary,
       [
-        { id: 'confirm_booking', title: 'Confirm' },
-        { id: 'cancel_booking', title: 'Cancel' }
+        { id: 'confirm_booking', title: '✅ Confirm' },
+        { id: 'cancel_booking', title: '❌ Cancel' }
       ]
     );
   } catch (error) {
-    console.error('Error confirming booking:', error);
-    await sendWhatsAppMessage(to, 'Error creating booking summary. Please try again.');
+    console.error('❌ Error confirming booking:', error);
+    await sendWhatsAppMessage(to, '❌ Error creating booking summary. Please try again.');
   }
 }
 
 // Process booking
 async function processBooking(to, state) {
   try {
+    console.log('🔄 Processing booking with state:', JSON.stringify(state, null, 2));
+    
     const asset = await Asset.findById(state.assetId);
     
-    const booking = new Booking({
+    if (!asset) {
+      throw new Error(`Asset not found: ${state.assetId}`);
+    }
+    
+    const bookingId = generateBookingId();
+    
+    const bookingData = {
+      bookingId: bookingId,
       asset: asset._id,
       partner: asset.partner,
       customer: {
@@ -528,35 +560,68 @@ async function processBooking(to, state) {
       pricing: {
         baseAmount: state.amount,
         tax: state.tax,
-        totalAmount: state.total
+        totalAmount: state.total,
+        currency: 'INR'
       },
       source: 'whatsapp',
-      status: 'confirmed'
-    });
+      status: 'confirmed',
+      paymentStatus: 'pending'
+    };
     
+    console.log('📝 Creating booking with data:', JSON.stringify(bookingData, null, 2));
+    
+    const booking = new Booking(bookingData);
     await booking.save();
     
-    console.log('Booking created:', booking.bookingId);
+    console.log('✅ Booking saved successfully:', booking.bookingId);
     
-    await sendWhatsAppMessage(
-      to,
-      `Booking Confirmed!\n\nBooking ID: ${booking.bookingId}\nSpace: ${asset.title}\nDate: ${state.date} at ${state.time}\nTotal: Rs${state.total}\n\nYou will receive a confirmation email at ${state.email}\n\nThank you for choosing Innerspace!`
-    );
+    // Send confirmation message
+    const confirmationMessage = 
+      `✅ Booking Confirmed!\n\n` +
+      `🆔 Booking ID: ${booking.bookingId}\n` +
+      `📍 Space: ${asset.title}\n` +
+      `🏙️ Location: ${asset.location.address}, ${asset.location.city}\n` +
+      `📅 Date: ${state.date}\n` +
+      `⏰ Time: ${state.time}\n` +
+      `⏳ Duration: ${state.duration}\n` +
+      `💰 Total: ₹${state.total}\n\n` +
+      `📧 A confirmation email has been sent to ${state.email}\n\n` +
+      `Thank you for choosing Innerspace! 🎉\n\n` +
+      `Type "book" to make another booking or "my_bookings" to view your bookings.`;
+    
+    await sendWhatsAppMessage(to, confirmationMessage);
+    
+    // Log success
+    console.log(`✅ Booking ${bookingId} confirmed for ${state.name} (${state.email})`);
     
   } catch (error) {
-    console.error('Error processing booking:', error);
-    await sendWhatsAppMessage(to, 'Error processing booking. Please contact support.');
+    console.error('❌ Booking processing error:', error.message);
+    console.error('Full error:', error);
+    console.error('State at error:', JSON.stringify(state, null, 2));
+    
+    await sendWhatsAppMessage(
+      to, 
+      `❌ Error processing booking: ${error.message}\n\nPlease try again or contact support.`
+    );
   }
 }
 
 // Validation helpers
 function isValidDate(dateStr) {
   const regex = /^\d{2}\/\d{2}\/\d{4}$/;
-  return regex.test(dateStr);
+  if (!regex.test(dateStr)) return false;
+  
+  const [day, month, year] = dateStr.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+  
+  return date.getFullYear() === year && 
+         date.getMonth() === month - 1 && 
+         date.getDate() === day &&
+         date >= new Date();
 }
 
 function isValidTime(timeStr) {
-  const regex = /^\d{2}:\d{2}$/;
+  const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
   return regex.test(timeStr);
 }
 
