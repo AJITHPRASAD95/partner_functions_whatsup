@@ -161,6 +161,11 @@
             background: #5a67d8;
         }
 
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
         .btn-danger {
             background: #e53e3e;
         }
@@ -200,14 +205,19 @@
             color: #856404;
         }
 
-        .status-approved {
+        .status-approved, .status-confirmed {
             background: #d4edda;
             color: #155724;
         }
 
-        .status-rejected {
+        .status-rejected, .status-cancelled {
             background: #f8d7da;
             color: #721c24;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
         }
         
         .modal {
@@ -271,6 +281,30 @@
             cursor: pointer;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e0;
+        }
+
+        .booking-details {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .booking-details p {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -291,6 +325,15 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .table {
+                font-size: 0.85rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem;
             }
         }
     </style>
@@ -363,7 +406,7 @@
                     </thead>
                     <tbody id="assetsTableBody">
                         <tr>
-                            <td colspan="6" style="text-align: center;">No assets found.</td>
+                            <td colspan="6" style="text-align: center;">Loading...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -465,24 +508,32 @@
         </div>
 
         <section class="content-section" id="bookings">
-            <h2>My Bookings</h2>
-            <p>This section will show a list of all confirmed and upcoming bookings for your assets.</p>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Booking ID</th>
-                        <th>Asset</th>
-                        <th>User</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="5" style="text-align: center;">No bookings found.</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="section-header">
+                <h2>My Bookings</h2>
+                <div>
+                    <button class="btn btn-sm" onclick="fetchBookings()"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
+            </div>
+            <div id="bookingsList">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Asset</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="content-section" id="profile">
@@ -534,7 +585,8 @@
 
         async function loadContent() {
             await fetchAssets();
-            // In a real app, you'd fetch bookings, analytics, etc. here
+            await fetchBookingStats();
+            await fetchBookings();
         }
         
         function setupEventListeners() {
@@ -546,7 +598,13 @@
                     e.target.closest('a').classList.add('active');
 
                     document.querySelector('.content-section.active').classList.remove('active');
-                    document.getElementById(e.target.closest('a').dataset.section).classList.add('active');
+                    const section = e.target.closest('a').dataset.section;
+                    document.getElementById(section).classList.add('active');
+                    
+                    // Load bookings when navigating to bookings section
+                    if (section === 'bookings') {
+                        fetchBookings();
+                    }
                 });
             });
 
@@ -559,6 +617,99 @@
             });
             
             document.getElementById('assetForm').addEventListener('submit', handleAssetFormSubmit);
+        }
+
+        async function fetchBookingStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/partners/bookings/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalBookings').textContent = stats.total || 0;
+                    document.getElementById('upcomingBookings').textContent = stats.upcoming || 0;
+                }
+            } catch (error) {
+                console.error('Error fetching booking stats:', error);
+            }
+        }
+
+        async function fetchBookings() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/partners/bookings`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const bookings = await response.json();
+                const bookingsTableBody = document.getElementById('bookingsTableBody');
+                bookingsTableBody.innerHTML = '';
+                
+                if (!response.ok) {
+                    bookingsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Error loading bookings</td></tr>';
+                    return;
+                }
+                
+                if (bookings.length === 0) {
+                    bookingsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <h3>No Bookings Yet</h3>
+                                    <p>You don't have any bookings for your assets yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                bookings.forEach(booking => {
+                    const row = document.createElement('tr');
+                    let statusClass = '';
+                    switch (booking.status) {
+                        case 'confirmed': statusClass = 'status-confirmed'; break;
+                        case 'cancelled': statusClass = 'status-cancelled'; break;
+                        case 'completed': statusClass = 'status-completed'; break;
+                        default: statusClass = 'status-pending'; break;
+                    }
+                    
+                    const assetTitle = booking.asset ? booking.asset.title : 'N/A';
+                    const assetType = booking.asset ? booking.asset.type.replace(/_/g, ' ') : '';
+                    const location = booking.asset ? booking.asset.location.city : '';
+                    
+                    row.innerHTML = `
+                        <td><strong>${booking.bookingId}</strong></td>
+                        <td>
+                            <div>${assetTitle}</div>
+                            <small style="color: #718096;">${assetType} • ${location}</small>
+                        </td>
+                        <td>
+                            <div>${booking.customer.name}</div>
+                            <small style="color: #718096;">${booking.customer.phone}</small>
+                        </td>
+                        <td>
+                            <div>${booking.bookingDetails.date}</div>
+                            <small style="color: #718096;">${booking.bookingDetails.time}</small>
+                        </td>
+                        <td><span style="text-transform: capitalize;">${booking.bookingDetails.duration}</span></td>
+                        <td><strong>₹${booking.pricing.totalAmount}</strong></td>
+                        <td><span class="status-badge ${statusClass}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span></td>
+                    `;
+                    
+                    bookingsTableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error fetching bookings:', error);
+                const bookingsTableBody = document.getElementById('bookingsTableBody');
+                bookingsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: red;">Network error. Please try again.</td></tr>';
+            }
         }
 
         async function fetchAssets() {
@@ -594,7 +745,7 @@
                     
                     row.innerHTML = `
                         <td>${asset.title}</td>
-                        <td>${asset.type}</td>
+                        <td>${asset.type.replace(/_/g, ' ')}</td>
                         <td>${asset.capacity}</td>
                         <td>${hourlyPrice}</td>
                         <td><span class="status-badge ${statusClass}">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span></td>
@@ -636,7 +787,7 @@
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
-                    body: formData // Use FormData for file uploads
+                    body: formData
                 });
                 
                 const result = await response.json();
@@ -666,14 +817,15 @@
             messageDiv.style.display = 'none';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/assets/${id}`, {
+                const response = await fetch(`${API_BASE_URL}/api/assets/my-assets`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                const asset = await response.json();
+                const assets = await response.json();
+                const asset = assets.find(a => a._id === id);
                 
-                if (response.ok) {
+                if (asset) {
                     document.getElementById('title').value = asset.title;
                     document.getElementById('description').value = asset.description;
                     document.getElementById('type').value = asset.type;
@@ -687,7 +839,6 @@
                     document.getElementById('state').value = asset.location.state;
                     document.getElementById('pincode').value = asset.location.pincode;
                     document.getElementById('amenities').value = asset.amenities?.join(', ') || '';
-                    // Note: availability and policy fields are not handled for simplicity
                     
                     document.getElementById('assetModal').style.display = 'block';
                 } else {
