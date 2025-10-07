@@ -7,7 +7,7 @@ const User = require('../models/User');
 const Booking = require('../models/Booking');
 
 // WhatsApp Configuration
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'EAAJRezsX14sBPvQ4PymKJLfo74AzZBWBjh2XR2qsHAZCcpQz36UXc0SsRMY0jF6ljhvdTPWyusdisFuoYIsOIJgZAati71Y54YFXFqtjOUQmV9obyQEh1NE5sHf4NaUTTbBcHpmKLYK8jvBxnxj8TgZAdSRWQcg3Eg97dPPDmzyhPVwn8UB3XdZAUFRZCrpfsBUHoTeZCPqMA6lEG6rMsGpFKb1KccFyTBuhExDmCcJmpGJKgZDZD';
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'EAAay5J9VaZBsBPmqIJqjRRDnCs11Ab4zbhxqLwcDH6VaTt1ZCPkTSroZC0ZAGNqGylHo68dWvlXpB2NOw5zDBsp7vaaiDXCZBnZCzAvQkKAvV14Dc9zSk4V9Cj2LuOgtTPAfWZB0bE89ea4IfLEhRUJ3H1sonjXiVho0hpG3N665ZCSOmo54YvT7XEr3ICIb9n7QuRrwmhCb2mZA0ygYsZAo06au2mOtslDN3xfpOQmMvNMymEZCQZDZD';
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID || '846227168563845';
 const WHATSAPP_API_URL = `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`;
 const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN || 'innerspace_verify_token_123';
